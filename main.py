@@ -2859,6 +2859,68 @@ async def season_rewards_command(interaction: discord.Interaction):
         logger.error(f"Error in season rewards command: {e}")
         await interaction.response.send_message("❌ An error occurred while displaying the season rewards pricing.", ephemeral=True)
 
+@bot.tree.command(name="rewards", description="Display server rewards system (Admin only)")
+async def rewards_command(interaction: discord.Interaction):
+    """Display the server rewards system with bonuses"""
+    
+    # Check DM permissions - STRICT
+    if interaction.guild is None:  # DM context
+        if interaction.user.id != ADMIN_USER_ID:
+            await interaction.response.send_message("❌ Only administrators can use bot commands in DM.", ephemeral=True)
+            return
+    
+    # Check if user has admin permissions in server
+    if interaction.guild and not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ You need administrator permissions to use this command.", ephemeral=True)
+        return
+    
+    try:
+        # Create main rewards embed
+        embed = discord.Embed(
+            title="🎁 REWARDS SYSTEM",
+            description="Get bonuses by supporting the server!",
+            color=0x5B2C6F
+        )
+        
+        # Add reward fields
+        embed.add_field(
+            name="💬 Leave a vouch",
+            value="= +30 MMR boost free",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📸 Post feedback with screenshot",
+            value="= +1 bonus game",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🤝 Invite 1 friend who buys",
+            value="= +1 Tournament Win free *(min. 5€ purchase)*",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📢 Make a public ad about us in another server",
+            value="= 💸 -50% discount on your next boost",
+            inline=False
+        )
+        
+        embed.add_field(
+            name="🎯 How to claim your reward",
+            value="Open a ticket in <#1388934457725292615> with proof (screenshot or invite) to claim your bonus!",
+            inline=False
+        )
+        
+        embed.set_footer(text="Voralith Rewards • Support the community and get rewarded!")
+        
+        await interaction.response.send_message(embed=embed)
+        
+    except Exception as e:
+        logger.error(f"Error in rewards command: {e}")
+        await interaction.response.send_message("❌ An error occurred while displaying the rewards system.", ephemeral=True)
+
 # Event for when new members join
 @bot.event
 async def on_message(message):
