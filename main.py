@@ -2736,6 +2736,47 @@ class ClearConfirmView(discord.ui.View):
     async def cancel_clear(self, interaction: discord.Interaction, button: discord.ui.Button):
         await interaction.response.send_message("❌ Clear operation cancelled.", ephemeral=True)
 
+@bot.tree.command(name="pricing", description="Display Rocket League boosting pricing grid (Admin only)")
+async def pricing_command(interaction: discord.Interaction):
+    """Display the Rocket League boosting pricing grid"""
+    
+    # Check DM permissions - STRICT
+    if interaction.guild is None:  # DM context
+        if interaction.user.id != ADMIN_USER_ID:
+            await interaction.response.send_message("❌ Only administrators can use bot commands in DM.", ephemeral=True)
+            return
+    
+    # Check if user has admin permissions in server
+    if interaction.guild and not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("❌ You need administrator permissions to use this command.", ephemeral=True)
+        return
+    
+    try:
+        # Create embed with title for better visibility
+        embed = discord.Embed(
+            title="🚀 Rocket League Rank Boosting - Pricing",
+            color=0x5B2C6F
+        )
+        
+        # Send with the PNG file attached
+        file = discord.File("rocket-league-rank-boosting-pricing.png", filename="pricing.png")
+        embed.set_image(url="attachment://pricing.png")
+        
+        # Create order message
+        order_embed = discord.Embed(
+            title="📞 How to Order",
+            description=f"Open a ticket in <#1388934457725292615> to place your order!",
+            color=0x5B2C6F
+        )
+        
+        # Send both embeds
+        await interaction.response.send_message(embed=embed, file=file)
+        await interaction.followup.send(embed=order_embed, ephemeral=True)
+        
+    except Exception as e:
+        logger.error(f"Error in pricing command: {e}")
+        await interaction.response.send_message("❌ An error occurred while displaying the pricing grid.", ephemeral=True)
+
 @bot.tree.command(name="tournaments", description="Display Rocket League tournament pricing (Admin only)")
 async def tournaments_command(interaction: discord.Interaction):
     """Display the Rocket League tournament pricing grid"""
